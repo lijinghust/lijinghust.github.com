@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>分享</title>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link href="http://libs.useso.com/js/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="plugin/prism/prism.css">
+        <style>
+            html {
+                background: #111;
+                color: #fff;
+                font-family: Helvetica, "Microsoft Yahei", sans-serif;
+                font-size: 24px;
+            }
+            #slides>section:first-child {
+                text-align: center;
+            }
+            #slides>section {
+                display: none;
+                box-sizing: border-box;
+                padding: 1em;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            #slides>section.active {
+                display: block
+            }
+            h1, h2, h3 {
+                font-family: "Microsoft JHenghei", sans-serif;
+                text-align: center;
+            }
+            li {
+                margin: 1em 0;
+            }
+            li li {
+                font-size: 80%;
+            }
+            img {
+                max-width: 100%;
+            }
+            a {
+                color: #fff;
+            }
+            #progress {
+                height: 2px;
+                background:#cf9;
+                position: fixed;
+                top: 0;
+                left: 0;
+                transition: width 0.2s ease-in;
+            }
+        </style>
+	</head>
+
+	<body>
+        <div id="slides"></div>
+        <div id="progress"></div>
+        <script src="http://libs.useso.com/js/jquery/2.1.1/jquery.min.js"></script>
+		<script src="plugin/markdown/marked.js"></script>
+		<script>
+        var slideIndex = parseInt(location.hash.replace('#','')) || 0;
+        var total = 0;
+        /**
+         * translate markdown
+         */
+        function compileMarkdown(md) {
+            return marked(md, {gfm:true});
+        };
+
+        function updateProgress() {
+            $('#progress').css('width', ((slideIndex+1)/total*100)+'%');
+        }
+
+        function bindEvents(params) {
+            var slides = $('#slides>section');
+            total = slides.length;
+            $(window).on('keydown', function (e) {
+                var key = e.keyCode;
+                if (key == 39 || key == 32 || key == 40 || key == 34) { //next
+                    if (slideIndex == total - 1 ) return;
+                    slides.eq(slideIndex).removeClass('active');
+                    slideIndex++;
+                    slides.eq(slideIndex).addClass('active');
+                    e.preventDefault();
+                } else if (key == 37 || key == 38 || key == 33) {
+                    if (slideIndex == 0 ) return;
+                    slides.eq(slideIndex).removeClass('active');
+                    slideIndex--;
+                    slides.eq(slideIndex).addClass('active');
+                    e.preventDefault();
+                }
+                location.hash = slideIndex;
+                updateProgress();
+            })
+        }
+
+
+        var match = /[?&]file=([\w\d-_\/~\.]+)/.exec(location.search);
+        if (!match) {
+            alert('没有指定要演示的文档！');
+            //window.location.href = 'index.html';
+        } else {
+            var file = match[1];
+            var url = file.indexOf('/') > -1 ? file : ('content/' + file + '.md');
+            $.get(url, function (md) {
+                var html = compileMarkdown(md);
+                html = html.replace(/(<\/section>)?\s*<hr>\s*(<section[^>]*>)?/ig, function(matched, group1, group2){
+                    return '</section>\n' + (group2 || '<section>');
+                });
+                html = html.replace(/^\s*(<section[^>]*>)?/, function(matched, group1){
+                    return group1 || '<section>';
+                });
+                html = html.replace(/(<\/section>)?\s*$/, '</section>');
+				document.getElementById('slides').innerHTML = html;
+                $('#slides section').eq(slideIndex).addClass('active');
+                bindEvents();
+            });
+        }
+
+		</script>
+
+	</body>
+</html>

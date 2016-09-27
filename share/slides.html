@@ -1,0 +1,238 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>分享</title>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/dark.css" id="theme">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <style id="slide_css">
+            .reveal [class^="fa-"],
+            .reveal [class*=" fa-"] {
+              font-family: FontAwesome;
+              font-weight: normal;
+              font-style: normal;
+              text-decoration: inherit;
+              -webkit-font-smoothing: antialiased;
+              *margin-right: .3em;
+            }
+        </style>
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="plugin/prism/prism.css">
+		<link rel="stylesheet" href="css/print/pdf.css" media="print">
+        <style></style>
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides" id="slides"></div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+		<script src="plugin/markdown/marked.js"></script>
+
+		<script>
+
+        /**
+         * 启动slides
+         */
+		function initReveal() {
+            var config = {
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+                rollingLinks: false,
+
+				transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					//{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlighting(); } },
+                    { src: 'plugin/prism/prism.js', async: true, callback: function() {
+                            var codes = [].slice.call(document.querySelectorAll('pre code'));
+                            codes.forEach(function(item){
+                                item.classList.add('language-' + item.classList[0]);
+                            });
+                            Prism.highlightAll();
+                            initRunButton();
+                    } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
+					// { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+            };
+            if (Reveal.getQueryHash().width) config.width = Reveal.getQueryHash().width;
+            if (Reveal.getQueryHash().height) config.height = Reveal.getQueryHash().height;
+
+			Reveal.initialize(config);
+		};
+
+
+        /**
+         * translate markdown
+         */
+        function compileMarkdown(md) {
+            return marked(md, {gfm:true});
+        };
+
+        /**
+         * init slide config
+         */
+        function initSlideConfig() {
+            var paragraphs = [].slice.call(document.getElementsByTagName('p')),
+                p,
+                configs,
+                config,
+                configName,
+                text;
+            for (var i = 0, len = paragraphs.length; i < len; i++) {
+                p = paragraphs[i];
+                text = p.textContent || p.innerText;
+                if (!/^@\w+/.test(text)) { // not config statement
+                    continue;
+                }
+                configs = text.split(/ *, */);
+                for (var j = 0; j < configs.length; j++) {
+                    config = configs[j].split(/ *: */);
+                    configName = config[0].substr(1).replace(/^\w/, function(a){return a.toUpperCase()});
+                    window['config' + configName](p.parentNode, config.slice(1).join(':'));
+                }
+                p.parentNode.removeChild(p);
+            }
+        }
+
+        function initRunButton() {
+            var jsCodes = [].slice.call(document.querySelectorAll('pre .language-javascript'));
+            jsCodes.forEach(function(item){
+                var pre = item.parentNode;
+                var button = document.createElement('a');
+                button.classList.add('run-btn');
+                button.innerHTML = 'Run';
+                pre.appendChild(button)
+            });
+            document.body.addEventListener('click', function(e){
+                var link = e.target;
+                if (link.tagName === 'A' && link.classList.contains('run-btn')) {
+                    e.preventDefault();
+                    var code = link.previousSibling.innerText;
+                    eval(code);
+                }
+            }, false);
+        }
+
+        /**
+         * config state (color)
+         */
+        function configState(slide, value) {
+            slide.setAttribute('data-state', value );
+        }
+
+        /**
+         * config fragment
+         */
+        function configFragment(slide, value) {
+            var items = slide.querySelectorAll('li, p');
+            items = [].slice.call(items);
+            items.forEach(function(item){
+                item.classList.add('fragment');
+            });
+        }
+
+        /**
+         * config background image
+         */
+        function configBg(slide, value) {
+            var state = slide.getAttribute('data-state') || ('bg-' + Math.random().toString(36).substr(-6));
+            slide.setAttribute('data-state', state);
+            //add css rule
+            var stylesheet = document.styleSheets[document.styleSheets.length-1];
+            stylesheet.insertRule('.' + state + ' body {background-image:url(' + value + ')}', 0);
+        }
+
+        /**
+         * config background color
+         */
+        function configBgColor(slide, value) {
+            var state = slide.getAttribute('data-state') || ('bg-' + Math.random().toString(36).substr(-6));
+            slide.setAttribute('data-state', state);
+            //add css rule
+            var stylesheet = document.styleSheets[document.styleSheets.length-1];
+            stylesheet.insertRule('.' + state + ' body {background-color:' + value + '}', 1);
+        }
+
+        /**
+         * config color
+         */
+        function configColor(slide, value) {
+            slide.style.color = value;
+            slide.querySelector('h1,h2,h3').style.color = value;
+        }
+
+        /**
+         * config offsetX
+         */
+        function configOffsetX(slide, value) {
+            slide.style.paddingLeft = value
+        }
+
+        /**
+         * config offsetY
+         */
+        function configOffsetY(slide, value) {
+            slide.querySelector('*:first-child').style.marginTop = value
+        }
+
+
+		(function() {
+			var httpRequest = new XMLHttpRequest();
+			httpRequest.onreadystatechange = function() {
+				if (httpRequest.readyState === 4) {
+                    var md = httpRequest.responseText;
+                    var html = compileMarkdown(md);
+                    html = html.replace(/(<\/section>)?\s*<hr>\s*(<section[^>]*>)?/ig, function(matched, group1, group2){
+                        return '</section>\n' + (group2 || '<section>');
+                    });
+                    html = html.replace(/^\s*(<section[^>]*>)?/, function(matched, group1){
+                        return group1 || '<section>';
+                    });
+                    html = html.replace(/(<\/section>)?\s*$/, '</section>');
+					document.getElementById('slides').innerHTML = html;
+                    initSlideConfig();
+					initReveal();
+				}
+			};
+            var match = /[?&]file=([\w\d-_\/~\.]+)/.exec(location.search);
+            if (!match) {
+                alert('没有指定要演示的文档！');
+                window.location.href = 'index.html';
+            } else {
+                var file = match[1];
+                var url = file.indexOf('/') > -1 ? file : ('content/' + file + '.md');
+                httpRequest.open('GET', url + '?_t' + Math.random() , true);
+                httpRequest.send(null);
+            }
+
+
+		})();
+
+		</script>
+
+	</body>
+</html>

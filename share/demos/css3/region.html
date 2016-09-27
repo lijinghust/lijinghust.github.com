@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>CSS3 Region Demo</title>
+        <style type="text/css">
+            .content-source {
+                -ms-flow-into: news;
+            }
+            .news-region {
+                -ms-flow-from: news;
+                background: #eee;
+                padding: 10px;
+                margin: 20px;
+            }
+            .top-content {
+                overflow: hidden;
+            }
+            .top-content .news-region {
+                width: 300px;
+                height: 150px;
+                float:left;
+            }
+        </style>
+    </head>
+    <body>
+        <iframe class="content-source" src="news.html"></iframe>
+        <div class="news-region"></div>
+        <div><img src="http://placehold.it/800x150"></div>
+        <div class="top-content">
+            <div class="news-region"></div>
+            <div class="news-region"></div>
+        </div>
+    </body>
+</html>

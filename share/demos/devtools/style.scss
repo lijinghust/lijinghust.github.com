@@ -1,0 +1,17 @@
+$primary-color: #f44;
+
+h1 {
+    color: $primary-color;
+}
+.mod {
+    border: 1px solid $primary-color;
+}
+.mod .hd {
+    background: $primary-color;
+    color: #fff;
+    border-bottom: 1px solid $primary-color;
+}
+.mod .bd {
+    background: lighten($primary-color, 60%);
+    color: $primary-color;
+}

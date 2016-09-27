@@ -1,0 +1,16 @@
+h1 {
+  color: #ff4444; }
+
+.mod {
+  border: 1px solid #ff4444; }
+
+.mod .hd {
+  background: #ff4444;
+  color: #fff;
+  border-bottom: 1px solid #ff4444; }
+
+.mod .bd {
+  background: white;
+  color: #ff4444; }
+
+/*# sourceMappingURL=style.css.map */

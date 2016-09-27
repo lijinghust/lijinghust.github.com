@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<p>当前时间是：<span id="time"></span>  <button id="update_time">更新时间</button></p>
+
+<script src="http://s0.qhimg.com/lib/jquery/183.js"></script>
+<script type="text/javascript">
+$('#update_time').click(function(e){
+    $('#time').html(+new Date());
+});
+</script>
+
+</body>
+</html>
